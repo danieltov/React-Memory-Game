@@ -1,0 +1,10 @@
+.card-container {
+  margin: 1rem;
+  height: 15rem;
+  min-width: 15rem;
+  width: 10%;
+  background-color: grey;
+  border: 1px solid transparent;
+  border-radius: 25px;
+  display: inline-block;
+}
