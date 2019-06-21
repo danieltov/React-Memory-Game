@@ -9,12 +9,14 @@ const Navbar = ({ onNewGame }) => (
     </h2>
     <nav>
       <li>
-        <a>New Game</a>
+        <a onClick={onNewGame}>New Game</a>
       </li>
     </nav>
   </header>
 );
 
-Navbar.PropTypes = {};
+Navbar.propTypes = {
+  onNewGame: PropTypes.func.isRequired
+};
 
 export default Navbar;

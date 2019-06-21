@@ -7,9 +7,9 @@ import Card from './components/Card';
 // * Create 3 CardStates - HIDDEN, VISIBLE, MATCHED
 
 const CardState = {
-  HIDDEN: 0, // can't see backgroundImage
-  VISIBLE: 1, // can see backgroundImage
-  MATCHED: 2 // matched, stay visible
+  HIDDEN: 0,
+  VISIBLE: 1,
+  MATCHED: 2
 };
 
 export default class MemoryGame extends Component {
@@ -17,7 +17,6 @@ export default class MemoryGame extends Component {
     super(props);
 
     // * Create cards to use in state
-
     let cards = [
       {
         id: 0,
@@ -100,10 +99,12 @@ export default class MemoryGame extends Component {
         backgroundImage: 'linear-gradient(180deg, #1CB5E0 0%, #000851 100%)'
       }
     ];
+
     cards = shuffle(cards);
     this.state = { cards, noClick: false };
 
     this.handleClick = this.handleClick.bind(this);
+    this.handleNewGame = this.handleNewGame.bind(this);
   }
 
   // ! Takes ID of card that was clicked, so we know which one to modify in the state array
@@ -128,12 +129,24 @@ export default class MemoryGame extends Component {
     });
   }
 
+  handleNewGame() {
+    // ! 1. Copy the state and set all the cards to HIDDEN
+    let cards = this.state.cards.map(card => ({
+      ...card,
+      cardState: CardState.HIDDEN
+    }));
+    // ! 2. Shuffle Cards
+    cards = shuffle(cards);
+    // ! 3. Set as new state.
+    this.setState({ cards });
+  }
+
   render() {
     // * Iterate over cards in state and return a Card component
     const cards = this.state.cards.map(card => (
       <Card
         key={card.id}
-        // ! Only show card if not equal to HIDDEN
+        // ! visible only true if not equal to HIDDEN
         visible={card.cardState !== CardState.HIDDEN}
         backgroundImage={card.backgroundImage}
         onClick={() => {
@@ -145,7 +158,7 @@ export default class MemoryGame extends Component {
     // * return a Navbar + Cards
     return (
       <div>
-        <Navbar />
+        <Navbar onNewGame={this.handleNewGame} />
         {cards}
       </div>
     );
