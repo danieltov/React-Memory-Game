@@ -3,6 +3,7 @@ import './MemoryGame.css';
 import shuffle from 'shuffle-array';
 import Navbar from './components/Navbar';
 import Card from './components/Card';
+import { timingSafeEqual } from 'crypto';
 
 // * Create 3 CardStates - HIDDEN, VISIBLE, MATCHED
 
@@ -107,26 +108,70 @@ export default class MemoryGame extends Component {
     this.handleNewGame = this.handleNewGame.bind(this);
   }
 
-  // ! Takes ID of card that was clicked, so we know which one to modify in the state array
-  handleClick(id) {
-    this.setState(prevState => {
-      // ! Map through each card
-      let cards = prevState.cards.map(card =>
-        // ! If ID's match... Change the set from hidden to matched, or matched to hidden
-        card.id === id
-          ? {
-              ...card,
+  // ! Game Logic
+  // ! If 2 cards are visible and they don't match, they should flip back
+  // ! If they do match, they should stay
 
-              cardState:
-                card.cardState === CardState.HIDDEN
-                  ? CardState.MATCHED
-                  : CardState.HIDDEN
-            }
-          : // ! If ID's don't match... return card as-is
-            card
-      );
-      return { cards };
-    });
+  handleClick(id) {
+    // ! Function that maps through cards and if card matches
+    // ! an ID to change, new state is given
+    const mapCardState = (cards, idsToChange, newCardState) => {
+      return cards.map(card => {
+        if (idsToChange.includes(card.id)) {
+          return {
+            ...card,
+            cardState: newCardState
+          };
+        }
+        return card;
+      });
+    };
+
+    // ! Function to find card that we want out of the array
+    const foundCard = this.state.cards.find(card => card.id === id);
+
+    // ! If clicked card is visible or matched, return
+    if (this.state.noClick || foundCard.cardState !== CardState.HIDDEN) return;
+
+    // ! If true, player can't click
+    let noClick = false;
+
+    // ! Map through cards by the click ID and change CardState of matched card to visible
+    let cards = mapCardState(this.state.cards, [id], CardState.VISIBLE);
+
+    // ! Filter cards array to return only visible cards
+    const visibleCards = cards.filter(
+      card => card.cardState === CardState.VISIBLE
+    );
+
+    // ! Get IDs of showing cards
+    const ids = visibleCards.map(card => card.id);
+
+    // * MATCHING LOGIC
+    // ! Check if two cards visible and if they match
+    if (
+      visibleCards.length === 2 &&
+      visibleCards[0].backgroundImage === visibleCards[1].backgroundImage
+    ) {
+      // ! IF they match, map through the visible cards and change their state to MATCHED
+      cards = mapCardState(cards, ids, CardState.MATCHED);
+    } else if (visibleCards.length === 2) {
+      // ! change to hiding if they don't match;
+      let hiddenCards = mapCardState(cards, ids, CardState.HIDDEN);
+      noClick = true;
+
+      // ! Set state to keep two cards showing...
+      this.setState({ cards, noClick }, () => {
+        setTimeout(() => {
+          // ! ...then set the state of the cards to HIDDEN after 1.3 seconds
+          this.setState({ cards: hiddenCards, noClick: false });
+        }, 1300);
+      });
+      return;
+    }
+
+    // ! This line will be reached if there's only one card showing
+    this.setState({ cards, noClick });
   }
 
   handleNewGame() {
