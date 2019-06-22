@@ -3,7 +3,6 @@ import './MemoryGame.css';
 import shuffle from 'shuffle-array';
 import Navbar from './components/Navbar';
 import Card from './components/Card';
-import { timingSafeEqual } from 'crypto';
 
 // * Create 3 CardStates - HIDDEN, VISIBLE, MATCHED
 
@@ -108,10 +107,6 @@ export default class MemoryGame extends Component {
     this.handleNewGame = this.handleNewGame.bind(this);
   }
 
-  // ! Game Logic
-  // ! If 2 cards are visible and they don't match, they should flip back
-  // ! If they do match, they should stay
-
   handleClick(id) {
     // ! Function that maps through cards and if card matches
     // ! an ID to change, new state is given
@@ -204,7 +199,7 @@ export default class MemoryGame extends Component {
     return (
       <div>
         <Navbar onNewGame={this.handleNewGame} />
-        {cards}
+        <div className='game-wrapper'>{cards}</div>
       </div>
     );
   }
