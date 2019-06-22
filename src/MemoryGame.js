@@ -101,7 +101,7 @@ export default class MemoryGame extends Component {
     ];
 
     cards = shuffle(cards);
-    this.state = { cards, noClick: false };
+    this.state = { cards, noClick: false, score: 0 };
 
     this.handleClick = this.handleClick.bind(this);
     this.handleNewGame = this.handleNewGame.bind(this);
@@ -150,6 +150,8 @@ export default class MemoryGame extends Component {
     ) {
       // ! IF they match, map through the visible cards and change their state to MATCHED
       cards = mapCardState(cards, ids, CardState.MATCHED);
+      let score = this.state.score + 2;
+      this.setState({ score });
     } else if (visibleCards.length === 2) {
       // ! change to hiding if they don't match;
       let hiddenCards = mapCardState(cards, ids, CardState.HIDDEN);
@@ -198,7 +200,7 @@ export default class MemoryGame extends Component {
     // * return a Navbar + Cards
     return (
       <div>
-        <Navbar onNewGame={this.handleNewGame} />
+        <Navbar onNewGame={this.handleNewGame} score={this.state.score} />
         <div className='game-wrapper'>{cards}</div>
       </div>
     );
